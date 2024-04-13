@@ -1,0 +1,23 @@
+{
+    "name":"chat-protocol-sample-container",
+    "dockerFile": "Dockerfile",
+    "context": ".",
+    "build": {
+        "args": {
+            "user": "vscode",
+            "node_version": "20.11.1",
+            "dotnet_version": "8.0.100"
+        }
+    },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/${localWorkspaceFolderBasename},type=bind",
+    "workspaceFolder": "/${localWorkspaceFolderBasename}",
+    "remoteUser": "vscode",
+    "postStartCommand": "git config --global core.editor \"code --wait\"",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-dotnettools.csdevkit"
+            ]
+        }
+    }
+}
