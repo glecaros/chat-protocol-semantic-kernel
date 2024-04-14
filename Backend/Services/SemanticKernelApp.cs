@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Backend.Interfaces;
 using Backend.Model;
 using Microsoft.SemanticKernel;
@@ -12,25 +13,24 @@ internal struct SemanticKernelConfig
     internal string? AzureEndpoint { get; private init; }
     internal string? APIKey { get; private init; }
 
-    internal static async Task<SemanticKernelConfig> Create(ISecretStore secretStore)
+    internal static async Task<SemanticKernelConfig> CreateAsync(ISecretStore secretStore, CancellationToken cancellationToken)
     {
-        var useAzureOpenAI = await secretStore.GetSecretAsync("UseAzureOpenAI").ContinueWith(task => bool.Parse(task.Result));
-        var apiKey = await secretStore.GetSecretAsync("APIKey");
+        var useAzureOpenAI = await secretStore.GetSecretAsync("UseAzureOpenAI", cancellationToken).ContinueWith(task => bool.Parse(task.Result));
         if (useAzureOpenAI)
         {
-            var azureDeployment = await secretStore.GetSecretAsync("AzureDeployment");
-            var azureEndpoint = await secretStore.GetSecretAsync("AzureEndpoint");
+            var azureDeployment = await secretStore.GetSecretAsync("AzureDeployment", cancellationToken);
+            var azureEndpoint = await secretStore.GetSecretAsync("AzureEndpoint", cancellationToken);
             return new SemanticKernelConfig
             {
                 UseAzureOpenAI = true,
                 AzureDeployment = azureDeployment,
                 AzureEndpoint = azureEndpoint,
-                APIKey = apiKey
             };
         }
         else
         {
-            var model = await secretStore.GetSecretAsync("Model");
+            var apiKey = await secretStore.GetSecretAsync("APIKey", cancellationToken);
+            var model = await secretStore.GetSecretAsync("Model", cancellationToken);
             return new SemanticKernelConfig
             {
                 UseAzureOpenAI = false,
@@ -43,18 +43,39 @@ internal struct SemanticKernelConfig
 
 internal class SemanticKernelSession : ISemanticKernelSession
 {
-    internal SemanticKernelSession(ISecretStore secretStore)
-    {
-        var config = await SemanticKernelConfig.Create(secretStore);
-    }
+    private readonly Kernel _kernel;
+    public Guid Id { get; private set; }
 
+    internal SemanticKernelSession(Kernel kernel, Guid sessionId)
+    {
+        _kernel = kernel;
+        Id = sessionId;
+    }
 
     public async Task<AIChatCompletion> ProcessRequest(AIChatRequest message)
     {
-        var config = await SemanticKernelConfig.Create(_secretStore);
-        var builder = Kernel.CreateBuilder();
+        const string prompt = @"
+        ChatBot can have a conversation with you about any topic.
+        It can give explicit instructions or say 'I don't know' if it does not know the answer.
 
-        throw new NotImplementedException();
+        {{$history}}
+        User: {{$userInput}}
+        ChatBot:";
+        /* TODO: Add settings. */
+        var chatFunction = _kernel.CreateFunctionFromPrompt(prompt);
+        var userInput = message.Messages.Last();
+        string history = "";
+        var arguments = new KernelArguments()
+        {
+            ["history"] = history,
+            ["userInput"] = userInput.Content,
+        };
+        var botResponse = await chatFunction.InvokeAsync(_kernel, arguments);
+        return new AIChatCompletion(Message: new AIChatMessage
+        {
+            Role = AIChatRole.Assistant,
+            Content = $"{botResponse}",
+        }, SessionState: Id);
     }
 }
 
@@ -62,18 +83,41 @@ public class SemanticKernelApp : ISemanticKernelApp
 {
     private readonly ISecretStore _secretStore;
 
+    private readonly Lazy<Task<Kernel>> _kernel;
 
+    private async Task<Kernel> InitKernel()
+    {
+        var config = await SemanticKernelConfig.CreateAsync(_secretStore, CancellationToken.None);
+        var builder = Kernel.CreateBuilder();
+        if (config.UseAzureOpenAI)
+        {
+            if (config.AzureDeployment is null || config.AzureEndpoint is null)
+            {
+                throw new InvalidOperationException("AzureOpenAI is enabled but AzureDeployment and AzureEndpoint are not set.");
+            }
+            builder.AddAzureOpenAIChatCompletion(config.AzureDeployment, config.AzureEndpoint, new DefaultAzureCredential());
+        }
+        else
+        {
+            if (config.Model is null || config.APIKey is null)
+            {
+                throw new InvalidOperationException("AzureOpenAI is disabled but Model and APIKey are not set.");
+            }
+            builder.AddOpenAIChatCompletion(config.Model, config.APIKey);
+        }
+        return builder.Build();
+    }
 
     public SemanticKernelApp(ISecretStore secretStore)
     {
         _secretStore = secretStore;
+        _kernel = new(() => Task.Run(InitKernel));
     }
 
     public async Task<ISemanticKernelSession> CreateSession(Guid sessionId)
     {
-
-
-        throw new NotImplementedException();
+        var kernel = await _kernel.Value;
+        return new SemanticKernelSession(kernel, sessionId);
     }
 
     public async Task<ISemanticKernelSession> GetSession(Guid sessionId)

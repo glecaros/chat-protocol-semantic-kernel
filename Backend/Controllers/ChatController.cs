@@ -18,7 +18,8 @@ public class ChatController : ControllerBase
     [Consumes("application/json")]
     public async Task<IActionResult> ProcessMessage(AIChatRequest request)
     {
-        var session = request.SessionState switch {
+        var session = request.SessionState switch
+        {
             Guid sessionId => await _semanticKernelApp.GetSession(sessionId),
             _ => await _semanticKernelApp.CreateSession(Guid.NewGuid())
         };
