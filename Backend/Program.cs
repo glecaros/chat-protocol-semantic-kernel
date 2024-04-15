@@ -1,4 +1,9 @@
-using Backend.Converters;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 using Backend.Interfaces;
 using Backend.Model;
 using Backend.Services;
@@ -9,7 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<ISecretStore>(new EnvVarSecretStore());
 builder.Services.AddSingleton<ISemanticKernelApp, SemanticKernelApp>();
 
-builder.Services.AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new AIChatRoleConverter()));
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<AIChatRole>(JsonNamingPolicy.CamelCase)));
 
 var app = builder.Build();
 

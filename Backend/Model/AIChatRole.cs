@@ -1,19 +1,16 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Text.Json.Serialization;
+
+using Backend.Converters;
+
 namespace Backend.Model;
 
-public struct AIChatRole
+[JsonConverter(typeof(JsonCamelCaseEnumConverter<AIChatRole>))]
+public enum AIChatRole
 {
-    private readonly string _value { get; }
-
-    public AIChatRole(string value)
-    {
-        _value = value;
-    }
-
-    public static AIChatRole System { get; } = new AIChatRole("system");
-    public static AIChatRole Assistant { get; } = new AIChatRole("assistant");
-    public static AIChatRole User { get; } = new AIChatRole("user");
-
-    public static implicit operator AIChatRole(string value) => new AIChatRole(value);
-
-    public override string ToString() => _value;
+    System,
+    Assistant,
+    User
 }
