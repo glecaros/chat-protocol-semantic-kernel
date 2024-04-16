@@ -10,7 +10,7 @@
     <SpaRoot>..\Frontend\</SpaRoot>
     <SpaProxyServerUrl>http://localhost:5002</SpaProxyServerUrl>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
-    </PropertyGroup>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.11.0" />
