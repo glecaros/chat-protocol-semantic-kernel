@@ -1,7 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import ChatInput from './ChatInput';
-import '../ChatWindow.css';
 import { AIChatMessage } from '@microsoft/ai-chat-protocol';
 
 function ChatWindow() {
