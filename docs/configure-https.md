@@ -3,7 +3,8 @@
 
 When developing applications that require HTTPS, one effective method is to use `OpenSSL` for generating self-signed certificates. This approach is widely used due to its flexibility and compatibility across different platforms. The following sections will guide you through the process of generating and trusting these certificates using `OpenSSL`.
 
-> :warning: **Important Note**: This process is intended for development purposes only. Using self-signed certificates in a production environment is not recommended as it can expose your application to security vulnerabilities.
+> [!CAUTION]
+> **Important Note**: This process is intended for development purposes only. Using self-signed certificates in a production environment is not recommended as it can expose your application to security vulnerabilities.
 
 ## Generating the Certificate
 
@@ -44,7 +45,8 @@ To add your certificate cd
 ```bash
 certutil -addStore "root" <path-to-crt-file>
 ```
->:information_source: Note: If you need to remove the certificate at any point, you can use certmgr.exe. Open it, navigate to Trusted Root Certification Authorities > Certificates, find your certificate, and delete it.
+> [!NOTE]
+> If you need to remove the certificate at any point, you can use certmgr.exe. Open it, navigate to Trusted Root Certification Authorities > Certificates, find your certificate, and delete it.
 
 #### MacOS
 
