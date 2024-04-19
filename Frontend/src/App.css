@@ -1,6 +1,25 @@
+:root {
+  --background-color: #E5DDD5;
+  --input-border-color: #ccc;
+  --button-background-color: #007bff;
+  --user-bubble-color: #DCF8C6;
+  --assistant-bubble-color: #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #242424;
+    --input-border-color: #888;
+    --button-background-color: #4b9fea;
+    --user-bubble-color: #4b9fea;
+    --assistant-bubble-color: #535bf2;
+  }
+}
+
 body {
   margin: 0;
   padding: 0;
+  background-color: var(--background-color);
 }
 
 .chat-window {
@@ -9,7 +28,7 @@ body {
   height: 100vh;
   width: 100vw;
   padding: 10px;
-  background-color: #E5DDD5;
+  background-color: var(--background-color);
   box-sizing: border-box;
 }
 
@@ -31,7 +50,7 @@ body {
   flex-grow: 1;
   padding: 5px;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--input-border-color);
 }
 
 .chat-input button {
@@ -39,7 +58,7 @@ body {
   padding: 5px 10px;
   border: none;
   border-radius: 5px;
-  background-color: #007bff;
+  background-color: var(--button-background-color);
   color: white;
 }
 
@@ -56,10 +75,10 @@ body {
 
 .user {
   align-self: flex-start;
-  background-color: #DCF8C6;
+  background-color: var(--user-bubble-color);
 }
 
 .assistant {
   align-self: flex-end;
-  background-color: #FFFFFF;
+  background-color: var(--assistant-bubble-color);
 }
