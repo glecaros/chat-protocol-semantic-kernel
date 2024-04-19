@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-RUN apt update && apt upgrade -y && apt install -y curl wget git zsh libicu70 bash-completion
+RUN apt update && apt upgrade -y && apt install -y curl wget git zsh libicu70 bash-completion gnupg2
 
 # Install Azure CLI
 RUN curl -o az-cli.sh -L https://aka.ms/InstallAzureCLIDeb &&\
