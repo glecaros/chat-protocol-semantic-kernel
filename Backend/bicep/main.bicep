@@ -50,3 +50,5 @@ module azureOpenAi 'ai.bicep' = {
   }
   scope: rg
 }
+
+output AZURE_OPENAI_ENDPOINT string = azureOpenAi.outputs.endpoint

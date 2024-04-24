@@ -46,3 +46,5 @@ resource modelDeployments 'Microsoft.CognitiveServices/accounts/deployments@2023
     raiPolicyName: (contains(item, 'raiPolicyName') ? item.raiPolicyName : null)
   }
 }]
+
+output endpoint string = azureOpenAiResource.properties.endpoint
