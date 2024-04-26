@@ -4,7 +4,7 @@ import ChatInput from './ChatInput';
 import { AIChatMessage, AIChatMessageDelta, AIChatProtocolClient } from '@microsoft/ai-chat-protocol';
 
 function ChatWindow() {
-  const client = new AIChatProtocolClient('/api/chat', { allowInsecureConnection: true })
+  const client = new AIChatProtocolClient('/api/chat');
 
   const [messages, setMessages] = useState<AIChatMessage[]>([]);
   const [sessionState, setSessionState] = useState<unknown | undefined>(undefined);
