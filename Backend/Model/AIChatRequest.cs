@@ -7,9 +7,9 @@ namespace Backend.Model;
 
 public record AIChatRequest([property: JsonPropertyName("messages")] IList<AIChatMessage> Messages)
 {
-    [JsonPropertyName("sessionState")]
+    [JsonInclude, JsonPropertyName("sessionState")]
     public Guid? SessionState;
 
-    [JsonPropertyName("context")]
+    [JsonInclude, JsonPropertyName("context")]
     public BinaryData? Context;
 }
