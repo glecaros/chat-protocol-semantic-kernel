@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import ChatInput from './ChatInput';
-import { AIChatMessage, AIChatProtocolClient } from '@microsoft/ai-chat-protocol';
+import { AIChatMessage, AIChatMessageDelta, AIChatProtocolClient } from '@microsoft/ai-chat-protocol';
 
 function ChatWindow() {
   const client = new AIChatProtocolClient('/api/chat', { allowInsecureConnection: true })
@@ -15,25 +15,32 @@ function ChatWindow() {
       content: message,
       role: 'user',
     };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+    const updatedMessages = [...messages, userMessage];
+
+    setMessages((_) => [...updatedMessages]);
+
+    const responseMessage: AIChatMessage = {
+      content: '',
+      role: 'assistant',
+    };
+
+    const updateMessages = (delta: AIChatMessageDelta) => {
+      responseMessage.content += delta.content;
+      setMessages((_) => [...updatedMessages, responseMessage]);
+    };
 
     const stream = await client.getStreamedCompletion([userMessage], {
       sessionState: sessionState,
     });
 
-    let responseMessage: AIChatMessage = {
-      content: '',
-      role: 'assistant',
-    };
-    const updateMessages = [...messages, userMessage];
     for await (const response of stream) {
       if (response.sessionState) {
         setSessionState(response.sessionState);
       }
       if (response.delta?.content) {
-        responseMessage.content += response.delta.content;
+        updateMessages(response.delta);
       }
-      setMessages((_) => [...updateMessages, responseMessage]);
     }
   };
 
