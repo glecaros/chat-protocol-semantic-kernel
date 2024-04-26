@@ -53,16 +53,16 @@ internal class SemanticKernelSession : ISemanticKernelSession
         Id = sessionId;
     }
 
-    public async Task<AIChatCompletion> ProcessRequest(AIChatRequest message)
-    {
-        const string prompt = @"
+    const string prompt = @"
         ChatBot can have a conversation with you about any topic.
         It can give explicit instructions or say 'I don't know' if it does not know the answer.
 
         {{$history}}
         User: {{$userInput}}
         ChatBot:";
-        /* TODO: Add settings. */
+
+    public async Task<AIChatCompletion> ProcessRequest(AIChatRequest message)
+    {
         var chatFunction = _kernel.CreateFunctionFromPrompt(prompt);
         var userInput = message.Messages.Last();
         string history = "";
@@ -84,14 +84,6 @@ internal class SemanticKernelSession : ISemanticKernelSession
 
     public async IAsyncEnumerable<AIChatCompletionDelta> ProcessStreamingRequest(AIChatRequest message)
     {
-        const string prompt = @"
-        ChatBot can have a conversation with you about any topic.
-        It can give explicit instructions or say 'I don't know' if it does not know the answer.
-
-        {{$history}}
-        User: {{$userInput}}
-        ChatBot:";
-        /* TODO: Add settings. */
         var chatFunction = _kernel.CreateFunctionFromPrompt(prompt);
         var userInput = message.Messages.Last();
         string history = "";
