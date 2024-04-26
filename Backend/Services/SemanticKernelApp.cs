@@ -58,25 +58,28 @@ internal class SemanticKernelSession : ISemanticKernelSession
         Id = sessionId;
     }
 
-    public async Task<AIChatCompletion> ProcessRequest(AIChatRequest message)
-    {
-        const string prompt = @"
+    const string prompt = @"
         ChatBot can have a conversation with you about any topic.
         It can give explicit instructions or say 'I don't know' if it does not know the answer.
 
         {{$history}}
         User: {{$userInput}}
         ChatBot:";
-        /* TODO: Add settings. */
+
+    public async Task<AIChatCompletion> ProcessRequest(AIChatRequest message)
+    {
+        var cacheKey = Id.ToString();
         var chatFunction = _kernel.CreateFunctionFromPrompt(prompt);
         var userInput = message.Messages.Last();
-        string history = await _cache.GetStringAsync(Id.ToString()) ?? "";
+        string history = await _cache.GetStringAsync(cacheKey) ?? "";
         var arguments = new KernelArguments()
         {
             ["history"] = history,
             ["userInput"] = userInput.Content,
         };
         var botResponse = await chatFunction.InvokeAsync(_kernel, arguments);
+        var updatedHistory = $"{history}\nUser: {userInput.Content}\nChatBot: {botResponse}";
+        await _cache.SetStringAsync(cacheKey, updatedHistory);
         return new AIChatCompletion(Message: new AIChatMessage
         {
             Role = AIChatRole.Assistant,
@@ -89,15 +92,7 @@ internal class SemanticKernelSession : ISemanticKernelSession
 
     public async IAsyncEnumerable<AIChatCompletionDelta> ProcessStreamingRequest(AIChatRequest message)
     {
-        const string prompt = @"
-        ChatBot can have a conversation with you about any topic.
-        It can give explicit instructions or say 'I don't know' if it does not know the answer.
-
-        {{$history}}
-        User: {{$userInput}}
-        ChatBot:";
-        /* TODO: Add settings. */
-        string cacheKey = Id.ToString();
+        var cacheKey = Id.ToString();
         var chatFunction = _kernel.CreateFunctionFromPrompt(prompt);
         var userInput = message.Messages.Last();
         string history = await _cache.GetStringAsync(cacheKey) ?? "";
