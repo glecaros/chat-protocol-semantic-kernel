@@ -21,11 +21,11 @@ internal struct SemanticKernelConfig
 
     internal static async Task<SemanticKernelConfig> CreateAsync(ISecretStore secretStore, CancellationToken cancellationToken)
     {
-        var useAzureOpenAI = await secretStore.GetSecretAsync("UseAzureOpenAI", cancellationToken).ContinueWith(task => bool.Parse(task.Result));
+        var useAzureOpenAI = await secretStore.GetSecretAsync("USE_AZURE_OPENAI", cancellationToken).ContinueWith(task => bool.Parse(task.Result));
         if (useAzureOpenAI)
         {
-            var azureDeployment = await secretStore.GetSecretAsync("AzureDeployment", cancellationToken);
-            var azureEndpoint = await secretStore.GetSecretAsync("AzureEndpoint", cancellationToken);
+            var azureDeployment = await secretStore.GetSecretAsync("AZURE_OPENAI_DEPLOYMENT", cancellationToken);
+            var azureEndpoint = await secretStore.GetSecretAsync("AZURE_OPENAI_ENDPOINT", cancellationToken);
 
             return new SemanticKernelConfig
             {
