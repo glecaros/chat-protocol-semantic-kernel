@@ -52,3 +52,5 @@ module azureOpenAi 'ai.bicep' = {
 }
 
 output AZURE_OPENAI_ENDPOINT string = azureOpenAi.outputs.endpoint
+output AZURE_OPENAI_DEPLOYMENT string = azureOpenAi.outputs.deploymentName
+output USE_AZURE_OPENAI bool = true
