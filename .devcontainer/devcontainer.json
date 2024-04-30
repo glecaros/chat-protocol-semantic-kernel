@@ -9,8 +9,12 @@
         "vscode": {
             "extensions": [
                 "ms-dotnettools.csdevkit",
-                "ms-vscode.vscode-typescript-next"
+                "ms-vscode.vscode-typescript-next",
+                "ms-azuretools.vscode-bicep"
             ]
         }
+    },
+    "features": {
+        "ghcr.io/azure/azure-dev/azd:latest": {}
     }
 }
