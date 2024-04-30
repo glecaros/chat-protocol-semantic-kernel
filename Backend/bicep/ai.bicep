@@ -1,18 +1,16 @@
 param name string
 param location string
-param deployments array = [
-  {
-    name: 'chat'
-    model: {
-      format: 'OpenAI'
-      name: 'gpt-4'
-      version: '0613'
-    }
-    sku: {
-      capacity: 1000
-    }
+param deployment object = {
+  name: 'chat'
+  model: {
+    format: 'OpenAI'
+    name: 'gpt-4'
+    version: '0613'
   }
-]
+  sku: {
+    capacity: 1
+  }
+}
 
 @description('')
 resource azureOpenAiResource 'Microsoft.CognitiveServices/accounts@2023-10-01-preview' = {
@@ -24,7 +22,7 @@ resource azureOpenAiResource 'Microsoft.CognitiveServices/accounts@2023-10-01-pr
   kind: 'OpenAI'
   tags: {}
   properties: {
-    // customSubDomainName: needed?
+    customSubDomainName: name
     networkAcls: {
       defaultAction: 'Allow'
       virtualNetworkRules: []
@@ -34,17 +32,18 @@ resource azureOpenAiResource 'Microsoft.CognitiveServices/accounts@2023-10-01-pr
   }
 }
 
-resource modelDeployments 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for item in deployments: {
+resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
   parent: azureOpenAiResource
-  name: item.name
-  sku: (contains(item, 'sku') ? item.sku : {
+  name: deployment.name
+  sku: (contains(deployment.sku, 'sku') ? deployment.sku : {
     name: 'Standard'
-    capacity: item.capacity
+    capacity: deployment.sku.capacity
   })
   properties: {
-    model: item.model
-    raiPolicyName: (contains(item, 'raiPolicyName') ? item.raiPolicyName : null)
+    model: deployment.model
+    raiPolicyName: (contains(deployment, 'raiPolicyName') ? deployment.raiPolicyName : null)
   }
-}]
+}
 
 output endpoint string = azureOpenAiResource.properties.endpoint
+output deploymentName string = modelDeployment.name
