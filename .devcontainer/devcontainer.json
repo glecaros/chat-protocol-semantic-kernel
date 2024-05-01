@@ -9,8 +9,15 @@
         "vscode": {
             "extensions": [
                 "ms-dotnettools.csdevkit",
-                "ms-vscode.vscode-typescript-next"
+                "ms-vscode.vscode-typescript-next",
+                "ms-azuretools.vscode-bicep"
             ]
         }
+    },
+    "features": {
+        // See https://containers.dev/features for list of features
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+        },
+        "ghcr.io/azure/azure-dev/azd:latest": {}
     }
 }
